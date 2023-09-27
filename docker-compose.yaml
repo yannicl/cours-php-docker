@@ -1,0 +1,53 @@
+version: '3'
+ 
+services:
+  db:
+    image: mysql:5.7
+    container_name: db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    restart: always
+    volumes:
+      - ../cours_php_db_data:/var/lib/mysql
+      - "./db/scripts/:/docker-entrypoint-initdb.d/:ro"
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: pma
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 1
+    restart: always
+  web:
+    image: nginx:latest
+    container_name: web
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - shared-data-cours-php:/var/www/html:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    links:
+      - php-fpm
+  php-fpm:
+    image: php-multisite
+    restart: always
+    volumes:
+      - shared-data-cours-php:/var/www/html:ro
+      - ./php/php-fpm.d:/usr/local/etc/php-fpm.d:ro
+  sftp:
+    image: atmoz/sftp
+    restart: always
+    volumes:
+        - shared-data-cours-php:/home
+        - ./sftp/users.conf:/etc/sftp/users.conf:ro
+        - ./sftp/ssh_host_ed25519_key:/etc/ssh/ssh_host_ed25519_key
+        - ./sftp/ssh_host_rsa_key:/etc/ssh/ssh_host_rsa_key
+    ports:
+        - "9322:22"
+
+volumes:
+  shared-data-cours-php:
+    external: true

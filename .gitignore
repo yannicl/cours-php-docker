@@ -1,0 +1,9 @@
+.env
+db/users.txt
+db/scripts/*
+nginx/conf.d/site.conf
+php/php-fpm.d/docker.conf
+php/php-fpm.d/site.conf
+php/php-fpm.d/zz-docker.conf
+sftp/ssh*
+sftp/users.conf
